@@ -1,5 +1,0 @@
-<ns0:Relationships xmlns:ns0="http://schemas.openxmlformats.org/package/2006/relationships">
-  <ns0:Relationship Id="rId1" Target="xl/workbook.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"/>
-  <ns0:Relationship Id="rId2" Target="docProps/core.xml" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties"/>
-  <ns0:Relationship Id="rId3" Target="docProps/app.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties"/>
-</ns0:Relationships>

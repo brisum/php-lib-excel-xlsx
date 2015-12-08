@@ -31,6 +31,11 @@ class Sheet
 
     }
 
+    /**
+     * @param int $from
+     * @param int $amount
+     * @return array
+     */
     public function getRows($from = 1, $amount = 100000)
     {
         $rowNumber = 1;
@@ -125,9 +130,25 @@ class Sheet
 
                 $rows[$rowKey][$columnName] = trim($val);
             }
+
+            uksort($rows[$rowKey], [&$this, 'sortRow']);
         }
 
         return $rows;
+    }
+
+    protected function sortRow($a, $b)
+    {
+        $lenA = strlen($a);
+        $lenB = strlen($b);
+
+        if ($lenA < $lenB) {
+            return -1;
+        }
+        if ($lenA > $lenB) {
+            return 1;
+        }
+        return strcmp($a, $b);
     }
 //
 //    public static function parseImages($dir, $url)

@@ -63,6 +63,10 @@ class WorkBook
         return $this->sheets;
     }
 
+    /**
+     * @param int $id
+     * @return Sheet
+     */
     public function getSheetById($id)
     {
         return new Sheet($this->document, $id);

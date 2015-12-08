@@ -2,7 +2,7 @@
 
 namespace Brisum\Lib\Xlsx;
 
-use XMLReader;
+use Brisum\Lib\Filesystem\Filesystem;
 
 class Document
 {
@@ -25,11 +25,11 @@ class Document
         if (!file_exists($this->dirTmp)) {
             throw new \Exception("Temp directory doesn't exist", 1);
         }
-        if (!mkdir($this->dirFiles, 0777, true)) {
+        if (!file_exists($this->dirFiles) && !mkdir($this->dirFiles, 0777, true)) {
             throw new \Exception("Can't create temp folder", 1);
         }
 
-        \BsmFileHelper::rmdir($this->dirFiles);
+        Filesystem::rrmdir($this->dirFiles);
 
         $zip = new \ZipArchive();
         $zip->open($this->filepath);
@@ -39,7 +39,7 @@ class Document
 
     public function clear()
     {
-        \BsmFileHelper::rmdir($this->dirFiles);
+        Filesystem::rrmdir($this->dirFiles);
     }
 
     public function getSourcePath($source)

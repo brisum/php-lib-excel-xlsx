@@ -1,6 +1,6 @@
 <?php
 
-namespace Brisum\Lib\Xlsx;
+namespace Brisum\Lib\Excel\Xlsx;
 
 use SimpleXMLElement;
 use XMLReader;

@@ -1,8 +1,6 @@
 <?php
 
-namespace Brisum\Lib\Xlsx;
-
-use Brisum\Lib\Filesystem\Filesystem;
+namespace Brisum\Lib\Excel\Xlsx;
 
 class Document
 {
@@ -29,7 +27,7 @@ class Document
             throw new \Exception("Can't create temp folder", 1);
         }
 
-        Filesystem::rrmdir($this->dirFiles);
+        self::rrmdir($this->dirFiles);
 
         $zip = new \ZipArchive();
         $zip->open($this->filepath);
@@ -39,7 +37,7 @@ class Document
 
     public function clear()
     {
-        Filesystem::rrmdir($this->dirFiles);
+        self::rrmdir($this->dirFiles);
     }
 
     public function getSourcePath($source)
@@ -51,5 +49,37 @@ class Document
         }
 
         return $sourcePath;
+    }
+
+    /**
+     * Remove recursively directory
+     *
+     * @param string $dir
+     * @return bool
+     */
+    protected static function rrmdir($dir) {
+        if ( !is_dir($dir) ) {
+            return false;
+        }
+
+        $filelist = scandir($dir);
+        foreach ($filelist as $file) {
+            if ('.' == $file || '..' == $file) {
+                continue;
+            }
+
+            $filepath = $dir . DIRECTORY_SEPARATOR . $file;
+
+            if ('dir' == filetype($filepath) && self::rrmdir($filepath)) {
+                continue;
+            }
+            if (unlink($filepath) ) {
+                continue;
+            }
+
+            return false;
+        }
+
+        return rmdir($dir);
     }
 }

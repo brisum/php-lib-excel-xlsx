@@ -52,7 +52,7 @@ class Sheet
         }
         while ($amount && self::TAG_ROW == $this->sheet->localName)
         {
-            $xmlRow = new SimpleXMLElement($this->sheet->readOuterXML());
+            $xmlRow = new SimpleXMLElement($this->sheet->readOuterXml());
             $xmlRows[$rowNumber] = [];
             $column = 0;
             while(isset($xmlRow->c[$column])) {
@@ -92,7 +92,7 @@ class Sheet
         while ($count <= $lastKey && self::TAG_SI == $this->sharedStrings->localName)
         {
             if (isset($searchStrings[$count])) {
-                $elem = new SimpleXMLElement($this->sharedStrings->readOuterXML());
+                $elem = new SimpleXMLElement($this->sharedStrings->readOuterXml());
                 $strings[$count] = (string)$elem->t;
 
                 unset($elem);

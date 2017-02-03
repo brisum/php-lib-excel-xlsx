@@ -1,0 +1,22 @@
+{
+  "name": "brisum/lib-excel-xlsx",
+  "description": "Parser for *.xlsx files",
+  "keywords": [
+    "xlsx",
+    "parser"
+  ],
+  "homepage": "https://github.com/brisum/php-lib-excel-xlsx",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Oleksandr Manchenko",
+      "email": "omanchenko@brisum.com",
+      "homepage": "http://brisum.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Brisum\\Lib\\Excel\\Xlsx\\": "src/"
+    }
+  }
+}

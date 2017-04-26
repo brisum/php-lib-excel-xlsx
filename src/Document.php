@@ -42,13 +42,7 @@ class Document
 
     public function getSourcePath($source)
     {
-        $sourcePath = $this->dirFiles . DIRECTORY_SEPARATOR . $source;
-
-        if (!file_exists($sourcePath)) {
-            throw new \Exception('Wrong source path: ' . $source);
-        }
-
-        return $sourcePath;
+        return $this->dirFiles . DIRECTORY_SEPARATOR . $source;
     }
 
     /**

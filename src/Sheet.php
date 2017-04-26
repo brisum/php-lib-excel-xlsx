@@ -43,6 +43,7 @@ class Sheet
         $xmlRows = [];
         $searchStrings = [];
         $strings = [];
+        $images = [];
         $rows = [];
 
         while ($this->sheet->read() && self::TAG_ROW != $this->sheet->localName);
@@ -102,6 +103,8 @@ class Sheet
             $count += 1;
         }
 
+        $images = $this->parseImages();
+
         foreach ($xmlRows as $rowKey => $xmlRow) {
             foreach ($columnNames as $columnName) {
                 if (isset($xmlRow[$columnName])) {
@@ -114,16 +117,18 @@ class Sheet
                         $val = $strings[$v];
                     } elseif (isset($xmlCell['t']) && $xmlCell['t'] == 'str') {
                         $val = (string)$v;
-                    } elseif (!isset($xmlCell['t'])) {
-                        $val = (string)$v;
+                    } elseif ( !$v ) {
+                        $imageCell = (string) $xmlCell['r'];
+                        $imageRow = preg_replace('/[^0-9]/', '', $imageCell);
+                        $imageColumn = 1 + array_search($columnName, array_values($columnNames));
+                         if ( isset($images[$imageRow][$imageColumn]) ) {
+                             $val = $images[$imageRow][$imageColumn];
+                         }
                     }
 
-                    // elseif ( !$v ) {
-                    //     $r = (string) $xmlCell['r'];
-                    //     if ( isset($images[$r]) ) {
-                    //         $v = $images[$r];
-                    //     }
-                    // }
+                    if (!$val) {
+                        $val = (string)$v;
+                    }
                 } else {
                     $val = '';
                 }
@@ -150,47 +155,51 @@ class Sheet
         }
         return strcmp($a, $b);
     }
-//
-//    public static function parseImages($dir, $url)
-//    {
-//        $images = array();
-//
-//        // parse image rId => imageTarget
-//        $drawings_rel = simplexml_load_file($dir . '/xl/drawings/_rels/drawing1.xml.rels');
-//        foreach ($drawings_rel->Relationship as $imgRel) {
-//            $rId = (string)$imgRel['Id'];
-//            $imgTarget = (string)$imgRel['Target'];
-//
-//            $images[$rId] = str_replace('..', $url, $imgTarget);
-//        }
-//        unset($drawings_rel);
-//
-//
-//        // parse cell => rId, and replace rId to cell;
-//        $drawings = simplexml_load_file($dir . '/xl/drawings/drawing1.xml', 'SimpleXMLElement', 0,
-//            'http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing');
-//        $drawings->registerXPathNamespace('a', 'http://schemas.openxmlformats.org/drawingml/2006/main');
-//        foreach ($drawings->twoCellAnchor as $imgInfo) {
-//            $cell = 'G' . (1 + ((string)$imgInfo->from->row));
-//
-//            $blipFill = $imgInfo->pic->blipFill;
-//            $blipFill = $blipFill->children('http://schemas.openxmlformats.org/drawingml/2006/main');
-//
-//            $blip = $blipFill->blip;
-//            $blip->registerXPathNamespace('r', 'http://schemas.openxmlformats.org/officeDocument/2006/relationships');
-//
-//            $rId = $blip->xpath('@r:embed');
-//            $rId = (string)$rId[0]['embed'];
-//
-//            if (isset($images[$rId])) {
-//                $images[$cell] = $images[$rId];
-//                unset($images[$rId]);
-//            }
-//        }
-//        unset($drawings);
-//
-//        return $images;
-//    }
+
+    public function parseImages()
+    {
+        $images = array();
+        $xmlDrawingPath = $this->document->getSourcePath('xl/drawings/_rels/drawing1.xml.rels');
+
+        if (!file_exists($xmlDrawingPath)) {
+            return $images;
+        }
+
+        // parse image rId => imageTarget
+        $drawings_rel = simplexml_load_file($xmlDrawingPath);
+        foreach ($drawings_rel->Relationship as $imgRel) {
+            $rId = (string)$imgRel['Id'];
+            $imgTarget = (string)$imgRel['Target'];
+
+            $images[$rId] = $this->document->getSourcePath(str_replace('..', 'xl', $imgTarget));
+        }
+        unset($drawings_rel);
 
 
+        // parse cell => rId, and replace rId to cell;
+        $drawings = simplexml_load_file($this->document->getSourcePath('xl/drawings/drawing1.xml'), 'SimpleXMLElement', 0,
+            'http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing');
+        $drawings->registerXPathNamespace('a', 'http://schemas.openxmlformats.org/drawingml/2006/main');
+        foreach ($drawings->twoCellAnchor as $imgInfo) {
+            $row = 1 + intval((string)$imgInfo->from->row);
+            $column = 1 + intval((string)$imgInfo->from->col);
+
+            $blipFill = $imgInfo->pic->blipFill;
+            $blipFill = $blipFill->children('http://schemas.openxmlformats.org/drawingml/2006/main');
+
+            $blip = $blipFill->blip;
+            $blip->registerXPathNamespace('r', 'http://schemas.openxmlformats.org/officeDocument/2006/relationships');
+
+            $rId = $blip->xpath('@r:embed');
+            $rId = (string)$rId[0]['embed'];
+
+            if (isset($images[$rId])) {
+                $images[$row][$column] = $images[$rId];
+                unset($images[$rId]);
+            }
+        }
+        unset($drawings);
+
+        return $images;
+    }
 }
